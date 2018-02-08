@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class StonePayException
- * @package Stone\Pay\StonePayException
+ * @package Stone\Pay\Exception
  * @author  令狐冲 <nicolaslei@163.com>
  */
 class StonePayException extends \Exception
