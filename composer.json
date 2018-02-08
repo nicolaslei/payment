@@ -1,0 +1,35 @@
+{
+    "name": "stone/pay",
+    "license": "MIT",
+    "type": "library",
+    "description": "Alipay Weixin Payment integration.",
+    "keywords": [
+        "pay",
+        "payment",
+        "alipay",
+        "weixin",
+        "stone"
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "psr/log": "^1.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "authors": [
+        {
+            "name": "minglei wei",
+            "email": "nicolaslei@163.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Stone\\Pay\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stone\\Pay\\Tests\\": "tests/"
+        }
+    }
+}
