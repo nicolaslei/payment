@@ -10,6 +10,7 @@ class Helper
      * @param $url
      * @param $data
      * @return array|bool
+     * @throws \GuzzleHttp\Exception\ConnectException
      */
     public static function httpRequest($url, $data)
     {

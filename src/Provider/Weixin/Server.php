@@ -78,6 +78,9 @@ class Server implements LoggerAwareInterface
         $this->sandboxPattern = $sandboxPattern;
     }
 
+    /**
+     * @return $this
+     */
     public function enableSandboxPattern()
     {
         $this->sandboxPattern = true;
@@ -85,20 +88,10 @@ class Server implements LoggerAwareInterface
         return $this;
     }
 
-    public function signByMd5()
-    {
-        $this->setSignType(new Md5());
-
-        return $this;
-    }
-
-    public function signBySha256()
-    {
-        $this->setSignType(new Sha256());
-
-        return $this;
-    }
-
+    /**
+     * @param SignTypeInterface $signType
+     * @return $this
+     */
     public function setSignType(SignTypeInterface $signType)
     {
         $this->signType = $signType;
@@ -113,11 +106,6 @@ class Server implements LoggerAwareInterface
     public function setApi(ApiInterface $api)
     {
         return $this->api = $api;
-    }
-
-    public function pay($notifyUrl, $outTradeNo, $body, $totalFee)
-    {
-
     }
 
     /**

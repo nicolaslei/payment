@@ -2,8 +2,7 @@
 
 namespace Stone\Pay\Provider\Alipay;
 
-use Stone\Pay\Exception\SignatureValidationException;
-use Stone\Pay\Exception\StonePayException;
+use Stone\Pay\Exception;
 use Stone\Pay\Provider\Alipay\SignType\Factory as SignFactory;
 use Stone\Pay\LoggerTrait;
 use Stone\Pay\NotifyInterface;
@@ -65,7 +64,7 @@ class Notify implements NotifyInterface
                 ->verifySign($waitSignString, $this->publicKey, $sign);
 
             if (!$result) {
-                throw new SignatureValidationException(
+                throw new Exception\SignatureValidationException(
                     sprintf(
                         "支付宝异步通知签名校验失败，签名类型[%s]，签名[%s]，签名参数[%s]",
                         $sign,
@@ -77,7 +76,7 @@ class Notify implements NotifyInterface
 
             return true;
 
-        } catch (StonePayException $e) {
+        } catch (Exception\StonePayException $e) {
             // 日志
             $this->recordErrorLog($e->getMessage());
 

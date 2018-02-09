@@ -47,20 +47,33 @@ abstract class AbstractApi implements ApiInterface
      * @throws ApiResponseException
      * @throws SignatureValidationException
      * @throws \Stone\Pay\Exception\InvalidArgumentException
+     * @throws \GuzzleHttp\Exception\ConnectException
      */
     public function request()
     {
-        $this->setParam('nonce_str', Helper::generateNonceStr());
+        $parameters = $this->parameters;
 
-        if (empty($this->parameters['spbill_create_ip'])) {
-            $this->setParam('spbill_create_ip', $this->getIp());
+        $parameters['nonce_str'] = Helper::generateNonceStr();
+
+        if (empty($parameters['spbill_create_ip'])) {
+            $parameters['spbill_create_ip'] = $this->getIp();
         }
 
-        $this->filterParameters();
+        $parameters = array_filter(
+            $parameters,
+            function ($param) {
+                return !empty($param);
+            }
+        );
+
+        $parameters['sign'] = $this->signType
+            ->generateSignature($parameters, $this->appSecret);
+
+        $parameters = Helper::arrayToXml($parameters);
 
         $response = Helper::httpRequest(
             $this->getApiUrl(),
-            $this->sign()->toXml()
+            $parameters
         );
 
         if ($response['return_code'] == 'SUCCESS') {
@@ -89,28 +102,36 @@ abstract class AbstractApi implements ApiInterface
     }
 
     /**
-     * @return string
+     * @param string $appId
+     * @return void
      */
-    public function toXml()
-    {
-        return Helper::arrayToXml($this->parameters);
-    }
-
     public function setAppId($appId)
     {
         $this->setParam('appid', $appId);
     }
 
+    /**
+     * @param $mchId
+     * @return void
+     */
     public function setMchId($mchId)
     {
         $this->setParam('mch_id', $mchId);
     }
 
+    /**
+     * @param string $appSecret
+     * @return void
+     */
     public function setAppSecret($appSecret)
     {
         $this->appSecret = $appSecret;
     }
 
+    /**
+     * @param SignTypeInterface $signType
+     * @return void
+     */
     public function setSignType(SignTypeInterface $signType)
     {
         $this->signType = $signType;
@@ -118,9 +139,12 @@ abstract class AbstractApi implements ApiInterface
     }
 
     /**
+     * 启用沙箱模式
+     *
      * @return $this|mixed
      * @throws ApiResponseException
      * @throws \Stone\Pay\Exception\InvalidArgumentException
+     * @throws \GuzzleHttp\Exception\ConnectException
      */
     public function enableSandboxPattern()
     {
@@ -141,39 +165,32 @@ abstract class AbstractApi implements ApiInterface
             throw new ApiResponseException($response['return_msg'], $this->logger);
         }
 
-        $this->appSecret   = $response['sandbox_signkey'];
+        $this->appSecret   = $response['sandbox_signkey']; // 使用沙箱密钥
         $this->sandboxTest = true;
 
         return $this;
     }
 
+    /**
+     * @param $key
+     * @param $val
+     */
     protected function setParam($key, $val)
     {
         $this->parameters[$key] = trim($val);
     }
 
+    /**
+     * @return string
+     */
     protected function getApiUrl()
     {
         return $this->apiUrl . ($this->sandboxTest ? '/sandboxnew' : '') . $this->getApiUri();
     }
 
     /**
-     * 过滤参数
-     *
-     * @return $this
+     * @return array|false|string
      */
-    protected function filterParameters()
-    {
-        $this->parameters = array_filter(
-            $this->parameters,
-            function ($param) {
-                return !empty($param);
-            }
-        );
-
-        return $this;
-    }
-
     protected function getIp()
     {
         // 判断服务器是否允许$_SERVER
@@ -197,18 +214,5 @@ abstract class AbstractApi implements ApiInterface
         }
 
         return $realip;
-    }
-
-    /**
-     * @return $this
-     */
-    protected function sign()
-    {
-        $sign = $this->signType
-            ->generateSignature($this->parameters, $this->appSecret);
-
-        $this->setParam('sign', $sign);
-
-        return $this;
     }
 }

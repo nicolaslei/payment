@@ -23,6 +23,9 @@ class Notify implements NotifyInterface
      */
     private $appSecret;
 
+    /**
+     * @var array
+     */
     private $response;
 
     /**

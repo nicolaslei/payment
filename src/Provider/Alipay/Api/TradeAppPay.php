@@ -29,6 +29,20 @@ class TradeAppPay extends AbstractApi
     }
 
     /**
+     * @return array
+     */
+    public function request()
+    {
+        $apiParameters = $this->getApiParameters();
+
+        foreach ($apiParameters as &$val) {
+            $val = urlencode($val);
+        }
+
+        return $apiParameters;
+    }
+
+    /**
      * @return string
      */
     protected function getMethod()

@@ -3,9 +3,7 @@
 namespace Stone\Pay\Provider\Alipay\Api;
 
 use GuzzleHttp;
-use Stone\Pay\Exception\ApiResponseException;
-use Stone\Pay\Exception\InvalidArgumentException;
-use Stone\Pay\Exception\SignatureValidationException;
+use Stone\Pay\Exception;
 use Stone\Pay\Provider\Alipay\Api\Traits\BizContentTrait;
 use Stone\Pay\Provider\Alipay\SignType\SignTypeInterface;
 use Stone\Pay\LoggerTrait;
@@ -56,23 +54,14 @@ abstract class AbstractApi implements ApiInterface
 
     /**
      * @return array
-     * @throws ApiResponseException
-     * @throws InvalidArgumentException
-     * @throws SignatureValidationException
+     * @throws Exception\ApiResponseException
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\SignatureValidationException
      */
     public function request()
     {
         $method     = $this->getMethod();
-        $parameters = $this->parameters;
-
-        $parameters['method']      = $method;
-        $parameters['charset']     = 'utf-8';
-        $parameters['timestamp']   = date('Y-m-d H:i:s');
-        $parameters['version']     = '1.0';
-        $parameters['biz_content'] = $this->getBizContentParam();
-
-        $parameters['sign'] = $this->sign
-            ->generateSignature($parameters, $this->privateKey);
+        $parameters = $this->getApiParameters();
 
         // 日志
         $this->recordDebugLog(
@@ -92,7 +81,7 @@ abstract class AbstractApi implements ApiInterface
         );
 
         if ($httpResponse->getStatusCode() != '200') {
-            throw new ApiResponseException('支付宝接口同步响应网络发生错误', $this->logger);
+            throw new Exception\ApiResponseException('支付宝接口同步响应网络发生错误', $this->logger);
         }
 
         // POST会有中文乱码，需要转换编码
@@ -109,12 +98,12 @@ abstract class AbstractApi implements ApiInterface
             // 将JSON解析为数组
             $response = GuzzleHttp\json_decode($response, true);
         } catch (\InvalidArgumentException $e) {
-            throw new InvalidArgumentException('支付宝接口同步响应返回数据JSON解析失败', $this->logger);
+            throw new Exception\InvalidArgumentException('支付宝接口同步响应返回数据JSON解析失败', $this->logger);
         }
 
         $responseKey = str_ireplace('.', '_', $method) . '_response';
         if (!isset($response[$responseKey])) {
-            throw new InvalidArgumentException('支付宝接口同步响应数据不合法', $this->logger);
+            throw new Exception\InvalidArgumentException('支付宝接口同步响应数据不合法', $this->logger);
         }
 
         $responseData = $response[$responseKey];
@@ -127,10 +116,10 @@ abstract class AbstractApi implements ApiInterface
                 return $responseData;
             }
 
-            throw new SignatureValidationException('支付宝接口同步响应签名校验失败', $this->logger);
+            throw new Exception\SignatureValidationException('支付宝接口同步响应签名校验失败', $this->logger);
         }
 
-        throw new ApiResponseException(
+        throw new Exception\ApiResponseException(
             sprintf(
                 '支付宝接口同步响应失败：CODE:%s，MSG:%s,SUB_CODE:%s，SUB_MSG:%s',
                 $responseData['code'],
@@ -200,5 +189,28 @@ abstract class AbstractApi implements ApiInterface
     protected function getBizContentParam()
     {
         return $this->getBizContent()->toJson();
+    }
+
+    /**
+     * @return array
+     */
+    protected function getApiParameters()
+    {
+        $method     = $this->getMethod();
+        $parameters = $this->parameters;
+
+        $parameters['method']      = $method;
+        $parameters['charset']     = 'utf-8';
+        $parameters['timestamp']   = date('Y-m-d H:i:s');
+        $parameters['version']     = '1.0';
+        $parameters['biz_content'] = $this->getBizContentParam();
+
+        ksort($parameters);
+        reset($parameters);
+
+        $parameters['sign'] = $this->sign
+            ->generateSignature($parameters, $this->privateKey);
+
+        return $parameters;
     }
 }
