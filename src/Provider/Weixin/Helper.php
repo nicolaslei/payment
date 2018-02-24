@@ -3,20 +3,30 @@
 namespace Stone\Pay\Provider\Weixin;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 
 class Helper
 {
     /**
      * @param $url
      * @param $data
+     * @param null $apiClientCertPath
+     * @param null $apiClientKeyPath
      * @return array|bool
      * @throws \GuzzleHttp\Exception\ConnectException
      */
-    public static function httpRequest($url, $data)
+    public static function httpRequest($url, $data, $apiClientCertPath = null, $apiClientKeyPath = null)
     {
         $httpClient = new Client();
 
-        $httpResponse = $httpClient->request('POST', $url, ['body' => $data, 'timeout' => 10]);
+        $options = [RequestOptions::BODY => $data, RequestOptions::TIMEOUT => 10];
+
+        if ($apiClientCertPath && $apiClientKeyPath) {
+            $options[RequestOptions::CERT]    = $apiClientCertPath;
+            $options[RequestOptions::SSL_KEY] = $apiClientKeyPath;
+        }
+
+        $httpResponse = $httpClient->request('POST', $url, $options);
         if ($httpResponse->getStatusCode() == 200) {
             return self::xmlToArray($httpResponse->getBody()->getContents());
         }

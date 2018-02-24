@@ -19,10 +19,10 @@ class UnifiedOrder extends AbstractApi
     /**
      * UnifiedOrder constructor.
      * @param TradeTypeInterface $tradeType
-     * @param                    $notifyUrl
-     * @param                    $outTradeNo
-     * @param                    $body
-     * @param                    $totalFee
+     * @param string $notifyUrl
+     * @param string $outTradeNo
+     * @param string $body
+     * @param integer $totalFee
      */
     public function __construct(
         TradeTypeInterface $tradeType,
@@ -58,6 +58,10 @@ class UnifiedOrder extends AbstractApi
         return $this->tradeType->responseHandle($response, $this->signType, $this->appSecret);
     }
 
+    /**
+     * @param $feeType
+     * @return $this
+     */
     public function setFeeType($feeType)
     {
         $this->setParam('fee_type', $feeType);
@@ -65,6 +69,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $attach
+     * @return $this
+     */
     public function setAttach($attach)
     {
         $this->setParam('attach ', $attach);
@@ -72,6 +80,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $timeStart
+     * @return $this
+     */
     public function setTimeStart($timeStart)
     {
         $this->setParam('time_start', $timeStart);
@@ -79,6 +91,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $timeExpire
+     * @return $this
+     */
     public function setTimeExpire($timeExpire)
     {
         $this->setParam('time_expire', $timeExpire);
@@ -86,6 +102,9 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setLimitPay()
     {
         $this->setParam('limit_pay', 'no_credit');
@@ -93,6 +112,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $detail
+     * @return $this
+     */
     public function setGoodsDetail($detail)
     {
         $this->setParam('detail', $detail);
@@ -100,6 +123,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $goodsTag
+     * @return $this
+     */
     public function setGoodsTag($goodsTag)
     {
         $this->setParam('goods_tag', $goodsTag);
@@ -107,6 +134,10 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @param $spBillCreateIp
+     * @return $this
+     */
     public function setSpBillCreateIp($spBillCreateIp)
     {
         $this->setParam('spbill_create_ip', $spBillCreateIp);
@@ -114,6 +145,9 @@ class UnifiedOrder extends AbstractApi
         return $this;
     }
 
+    /**
+     * @return string
+     */
     protected function getApiUri()
     {
         return '/pay/unifiedorder';

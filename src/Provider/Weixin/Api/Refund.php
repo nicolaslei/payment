@@ -11,19 +11,22 @@ class Refund extends AbstractApi
 {
     /**
      * Refund constructor.
-     * @param string $apiClientCert
-     * @param string $apiClientKey
+     * @param string $apiClientCertPath
+     * @param string $apiClientKeyPath
      * @param string|integer $outTradeNo 商户订单号
      * @param string|integer $outRefundNo 商户系统内部的退款单号，商户系统内部唯一，只能是数字、大小写字母_-|*@ ，同一退款单号多次请求只退一笔。
      * @param integer $totalFee 订单总金额，单位为分，只能为整数
      */
-    public function __construct($apiClientCert, $apiClientKey, $outTradeNo, $outRefundNo, $totalFee)
+    public function __construct($apiClientCertPath, $apiClientKeyPath, $outTradeNo, $outRefundNo, $totalFee)
     {
         $this->setParam('out_trade_no', $outTradeNo);
         $this->setParam('out_refund_no', $outRefundNo);
         $this->setParam('total_fee', $totalFee);
         // 默认全部退款
         $this->setParam('refund_fee', $totalFee);
+
+        $this->apiClientCertPath = $apiClientCertPath;
+        $this->apiClientKeyPath  = $apiClientKeyPath;
     }
 
     /**

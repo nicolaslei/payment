@@ -18,8 +18,14 @@ abstract class AbstractApi implements ApiInterface
 {
     use LoggerTrait;
 
+    /**
+     * @var string
+     */
     protected $apiUrl = 'https://api.mch.weixin.qq.com';
 
+    /**
+     * @var bool
+     */
     protected $sandboxTest = false;
 
     /**
@@ -36,6 +42,16 @@ abstract class AbstractApi implements ApiInterface
      * @var string
      */
     protected $appSecret;
+
+    /**
+     * @var string
+     */
+    protected $apiClientCertPath;
+
+    /**
+     * @var string
+     */
+    protected $apiClientKeyPath;
 
     /**
      * @return string
@@ -73,13 +89,14 @@ abstract class AbstractApi implements ApiInterface
 
         $response = Helper::httpRequest(
             $this->getApiUrl(),
-            $parameters
+            $parameters,
+            $this->apiClientCertPath,
+            $this->apiClientKeyPath
         );
 
         if ($response['return_code'] == 'SUCCESS') {
             // 签名方式
             $signType = empty($response['sign_type']) ? 'MD5' : $response['sign_type'];
-
             // 返回数据
             $sign = SignFactory::load($signType)
                 ->generateSignature($response, $this->appSecret);
@@ -196,23 +213,23 @@ abstract class AbstractApi implements ApiInterface
         // 判断服务器是否允许$_SERVER
         if (isset($_SERVER)) {
             if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $realip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+                $realIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
             } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-                $realip = $_SERVER['HTTP_CLIENT_IP'];
+                $realIp = $_SERVER['HTTP_CLIENT_IP'];
             } else {
-                $realip = $_SERVER['REMOTE_ADDR'];
+                $realIp = $_SERVER['REMOTE_ADDR'];
             }
         } else {
             // 不允许就使用getenv获取
             if (getenv("HTTP_X_FORWARDED_FOR")) {
-                $realip = getenv("HTTP_X_FORWARDED_FOR");
+                $realIp = getenv("HTTP_X_FORWARDED_FOR");
             } elseif (getenv("HTTP_CLIENT_IP")) {
-                $realip = getenv("HTTP_CLIENT_IP");
+                $realIp = getenv("HTTP_CLIENT_IP");
             } else {
-                $realip = getenv("REMOTE_ADDR");
+                $realIp = getenv("REMOTE_ADDR");
             }
         }
 
-        return $realip;
+        return $realIp;
     }
 }
