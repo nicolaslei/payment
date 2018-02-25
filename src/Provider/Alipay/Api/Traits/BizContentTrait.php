@@ -27,7 +27,8 @@ trait BizContentTrait
             $parameters = $args[0];
         }
 
-        $this->getBizContent()->setParam($parameters);
+        $this->getBizContent()
+            ->setParam($parameters);
 
         return $this;
     }

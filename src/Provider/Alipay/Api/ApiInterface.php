@@ -7,6 +7,9 @@ use Stone\Pay\Provider\Alipay\SignType\SignTypeInterface;
 
 interface ApiInterface extends LoggerAwareInterface
 {
+    /**
+     * @return mixed
+     */
     public function request();
 
     public function setSign(SignTypeInterface $sign);

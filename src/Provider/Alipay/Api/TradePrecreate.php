@@ -27,6 +27,9 @@ class TradePrecreate extends AbstractApi
         ]);
     }
 
+    /**
+     * @return string
+     */
     protected function getMethod()
     {
         return 'alipay.trade.precreate';

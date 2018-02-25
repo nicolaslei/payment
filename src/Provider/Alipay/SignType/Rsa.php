@@ -9,6 +9,16 @@ namespace Stone\Pay\Provider\Alipay\SignType;
  */
 class Rsa extends AbstractSignType
 {
+    /**
+     * @var string
+     */
+    const TYPE_ID = 'RSA';
+
+    /**
+     * @param $string
+     * @param $res
+     * @return string
+     */
     protected function sign($string, $res)
     {
         openssl_sign($string, $sign, $res);
@@ -32,6 +42,6 @@ class Rsa extends AbstractSignType
      */
     public function getSignType()
     {
-        return 'RSA';
+        return self::TYPE_ID;
     }
 }

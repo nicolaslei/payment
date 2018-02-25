@@ -16,13 +16,14 @@ class Factory
      * @return Rsa|Rsa2
      * @throws InvalidArgumentException
      */
-    public static function load($signType = 'RSA2')
+    public static function load($signType = Rsa2::TYPE_ID)
     {
         $signType = strtoupper($signType);
+
         switch ($signType) {
-            case 'RSA2':
+            case Rsa2::TYPE_ID:
                 return new Rsa2();
-            case 'HMAC-SHA256':
+            case Rsa::TYPE_ID:
                 return new Rsa();
             default:
                 throw new InvalidArgumentException(

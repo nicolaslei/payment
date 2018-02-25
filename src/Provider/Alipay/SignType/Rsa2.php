@@ -11,6 +11,11 @@ namespace Stone\Pay\Provider\Alipay\SignType;
 class Rsa2 extends AbstractSignType
 {
     /**
+     * @var string
+     */
+    const TYPE_ID = 'RSA2';
+
+    /**
      * @param $string
      * @param $res
      *
@@ -40,6 +45,6 @@ class Rsa2 extends AbstractSignType
      */
     public function getSignType()
     {
-        return 'RSA2';
+        return self::TYPE_ID;
     }
 }
