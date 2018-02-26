@@ -85,6 +85,15 @@ abstract class AbstractApi implements ApiInterface
         $parameters['sign'] = $this->signType
             ->generateSignature($parameters, $this->appSecret);
 
+        // 日志
+        $this->recordDebugLog(
+            sprintf(
+                '请求微信支付接口，地址[%s]，参数[%s]',
+                $this->getApiUrl(),
+                var_export($parameters, true)
+            )
+        );
+
         $parameters = Helper::arrayToXml($parameters);
 
         $response = Helper::httpRequest(
@@ -107,15 +116,15 @@ abstract class AbstractApi implements ApiInterface
                 }
 
                 throw new ApiResponseException(
-                    sprintf('%s:%s', $response['err_code'], $response['err_code_des']),
+                    sprintf('微信支付同步响应错误：%s(%s)', $response['err_code_des'], $response['err_code']),
                     $this->logger
                 );
             }
 
-            throw new SignatureValidationException('微信同步响应签名校验失败', $this->logger);
+            throw new SignatureValidationException('微信支付同步响应签名校验失败', $this->logger);
         }
 
-        throw new ApiResponseException($response['return_msg'], $this->logger);
+        throw new ApiResponseException('微信支付同步响应错误：' . $response['return_msg'], $this->logger);
     }
 
     /**

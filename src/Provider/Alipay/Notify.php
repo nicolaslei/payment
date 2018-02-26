@@ -26,16 +26,32 @@ class Notify implements NotifyInterface
 
     public function __construct()
     {
-        $this->data = $_POST ?: $_GET;
+        $data = $_POST ?: $_GET;
+        if (empty($data) || !is_array($data)) {
+            throw new Exception\InvalidArgumentException('支付宝异步通知回调接收不到数据');
+        }
+
+        // 日志
+        $this->recordDebugLog(
+            sprintf(
+                '微信支付异步回调通知数据[%s]',
+                var_export($data, true)
+            )
+        );
+
+        $this->data = $data;
     }
 
-    public function verify(TradeInterface $trade = null)
+    /**
+     * @param null|TradeInterface $trade
+     * @return array|bool
+     */
+    public function verify(?TradeInterface $trade)
     {
         $data = $this->data;
-        if (!empty($data) && is_array($data)) {
-            if ($this->verifyTrade($trade)) {
-                return $data;
-            }
+
+        if ($trade instanceof TradeInterface && $this->verifyTrade($trade)) {
+            return $data;
         }
 
         return false;
@@ -47,9 +63,6 @@ class Notify implements NotifyInterface
     public function verifySign()
     {
         $data = $this->data;
-        if (empty($data) || !is_array($data)) {
-            return false;
-        }
 
         $sign     = $data['sign'];
         $signType = $data['sign_type'];
@@ -97,17 +110,17 @@ class Notify implements NotifyInterface
     }
 
     /**
-     * @param TradeInterface|null $trade
+     * @param TradeInterface $trade
      * @return bool
      */
-    protected function verifyTrade(TradeInterface $trade = null)
+    protected function verifyTrade(TradeInterface $trade)
     {
         $data = $this->data;
 
         if ($trade instanceof TradeInterface
             && isset($data['out_trade_no'])
-            && isset($data['total_amount']))
-        {
+            && isset($data['total_amount'])
+        ) {
             $outTradeNo  = $data['out_trade_no'];
             $totalAmount = $data['total_amount'];
 

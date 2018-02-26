@@ -1,6 +1,11 @@
 <?php
+
 namespace Stone\Pay;
 
+/**
+ * Interface NotifyInterface
+ * @package Stone\Pay
+ */
 interface NotifyInterface
 {
     /**
@@ -8,7 +13,7 @@ interface NotifyInterface
      *
      * @return boolean|array
      */
-    public function verify(TradeInterface $trade = null);
+    public function verify(?TradeInterface $trade);
 
     /**
      * @return mixed
